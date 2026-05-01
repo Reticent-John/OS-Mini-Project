@@ -1,0 +1,145 @@
+--- Producer-Consumer Simulation ---
+Producers: 3, Consumers: 2, Buffer Size: 10
+Each producer will generate 20 items
+-----------------------------------------------------
+
+[Producer - 1] Produced the Item 30 at index 0
+[Producer - 1] Produced the Item 51 at index 1
+[Producer - 1] Produced the Item 66 at index 2
+[Producer - 1] Produced the Item 48 at index 3
+[Producer - 1] Produced the Item 78 at index 4
+[Producer - 1] Produced the Item 35 at index 5
+[Producer - 1] Produced the Item 81 at index 6
+[Producer - 1] Produced the Item 71 at index 7
+[Producer - 1] Produced the Item 64 at index 8
+[Producer - 1] Produced the Item 19 at index 9
+[Consumer - 1] Consumed the item 30 at index 0
+[Consumer - 1] Consumed the item 51 at index 1
+[Producer - 1] Produced the Item 53 at index 0
+[Producer - 3] Produced the Item 89 at index 1
+[Producer - 3] Produced the Item 31 at index 2
+[Consumer - 1] Consumed the item 66 at index 2
+[Producer - 2] Produced the Item 35 at index 3
+[Consumer - 1] Consumed the item 48 at index 3
+[Consumer - 1] Consumed the item 78 at index 4
+[Consumer - 1] Consumed the item 35 at index 5
+[Consumer - 1] Consumed the item 81 at index 6
+[Consumer - 1] Consumed the item 71 at index 7
+[Producer - 3] Produced the Item 42 at index 5
+[Producer - 3] Produced the Item 63 at index 7
+[Producer - 3] Produced the Item 74 at index 8
+[Consumer - 1] Consumed the item 64 at index 8
+[Consumer - 2] Consumed the item 53 at index 0
+[Producer - 1] Produced the Item 60 at index 6
+[Producer - 3] Produced the Item 20 at index 9
+[Producer - 3] Produced the Item 29 at index 0
+[Consumer - 1] Consumed the item 19 at index 9
+[Consumer - 2] Consumed the item 89 at index 1
+[Producer - 3] Produced the Item 87 at index 2
+[Producer - 3] Produced the Item 29 at index 3
+[Producer - 2] Produced the Item 51 at index 4
+[Producer - 1] Produced the Item 21 at index 1
+[Consumer - 2] Consumed the item 35 at index 3
+[Consumer - 2] Consumed the item 51 at index 4
+[Producer - 3] Produced the Item 60 at index 4
+[Producer - 3] Produced the Item 41 at index 5
+[Consumer - 2] Consumed the item 42 at index 5
+[Producer - 2] Produced the Item 92 at index 6
+[Consumer - 2] Consumed the item 60 at index 6
+[Consumer - 2] Consumed the item 63 at index 7
+[Producer - 3] Produced the Item 55 at index 7
+[Consumer - 2] Consumed the item 74 at index 8
+[Consumer - 1] Consumed the item 31 at index 2
+[Producer - 1] Produced the Item 1 at index 9
+[Consumer - 1] Consumed the item 29 at index 0
+[Consumer - 2] Consumed the item 20 at index 9
+[Consumer - 1] Consumed the item 21 at index 1
+[Consumer - 2] Consumed the item 87 at index 2
+[Producer - 1] Produced the Item 21 at index 0
+[Consumer - 1] Consumed the item 29 at index 3
+[Consumer - 1] Consumed the item 60 at index 4
+[Consumer - 1] Consumed the item 41 at index 5
+[Consumer - 1] Consumed the item 92 at index 6
+[Producer - 3] Produced the Item 32 at index 1
+[Consumer - 2] Consumed the item 43 at index 8
+[Consumer - 2] Consumed the item 1 at index 9
+[Producer - 2] Produced the Item 43 at index 8
+[Producer - 2] Produced the Item 52 at index 4
+[Producer - 2] Produced the Item 78 at index 5
+[Producer - 2] Produced the Item 55 at index 6
+[Producer - 2] Produced the Item 55 at index 7
+[Producer - 2] Produced the Item 35 at index 8
+[Producer - 2] Produced the Item 1 at index 9
+[Consumer - 2] Consumed the item 21 at index 0
+[Consumer - 2] Consumed the item 32 at index 1
+[Consumer - 2] Consumed the item 56 at index 2
+[Consumer - 2] Consumed the item 74 at index 3
+[Consumer - 2] Consumed the item 52 at index 4
+[Consumer - 2] Consumed the item 78 at index 5
+[Consumer - 2] Consumed the item 55 at index 6
+[Consumer - 2] Consumed the item 55 at index 7
+[Consumer - 2] Consumed the item 35 at index 8
+[Consumer - 2] Consumed the item 1 at index 9
+[Producer - 1] Produced the Item 56 at index 2
+[Producer - 1] Produced the Item 25 at index 0
+[Producer - 1] Produced the Item 29 at index 1
+[Producer - 1] Produced the Item 69 at index 2
+[Producer - 1] Produced the Item 48 at index 3
+[Producer - 1] Finished producing 20 items
+[Producer - 3] Produced the Item 74 at index 3
+[Producer - 3] Produced the Item 11 at index 4
+[Producer - 3] Produced the Item 61 at index 5
+[Producer - 3] Produced the Item 17 at index 6
+[Producer - 3] Produced the Item 12 at index 7
+[Producer - 3] Produced the Item 35 at index 8
+[Producer - 3] Produced the Item 96 at index 9
+[Producer - 3] Finished producing 20 items
+[Consumer - 1] Consumed the item 55 at index 7
+[Consumer - 1] Consumed the item 25 at index 0
+[Consumer - 1] Consumed the item 69 at index 2
+[Consumer - 1] Consumed the item 48 at index 3
+[Consumer - 1] Consumed the item 11 at index 4
+[Consumer - 1] Consumed the item 61 at index 5
+[Consumer - 1] Consumed the item 17 at index 6
+[Consumer - 1] Consumed the item 12 at index 7
+[Consumer - 1] Consumed the item 35 at index 8
+[Consumer - 1] Consumed the item 96 at index 9
+[Consumer - 1] Consumed the item 49 at index 0
+[Consumer - 2] Consumed the item 29 at index 1
+[Producer - 2] Produced the Item 49 at index 0
+[Consumer - 1] Consumed the item 33 at index 1
+[Producer - 2] Produced the Item 33 at index 1
+[Consumer - 2] Consumed the item 38 at index 2
+[Producer - 2] Produced the Item 38 at index 2
+[Consumer - 1] Consumed the item 49 at index 3
+[Producer - 2] Produced the Item 49 at index 3
+[Consumer - 2] Consumed the item 78 at index 4
+[Producer - 2] Produced the Item 78 at index 4
+[Consumer - 1] Consumed the item 9 at index 5
+[Producer - 2] Produced the Item 9 at index 5
+[Consumer - 2] Consumed the item 9 at index 6
+[Producer - 2] Produced the Item 9 at index 6
+[Consumer - 1] Consumed the item 70 at index 7
+[Producer - 2] Produced the Item 70 at index 7
+[Consumer - 2] Consumed the item 2 at index 8
+[Producer - 2] Produced the Item 2 at index 8
+[Consumer - 1] Consumed the item 34 at index 9
+[Producer - 2] Produced the Item 34 at index 9
+[Producer - 2] Finished producing 20 items
+
+--- All producers finished ---
+Inserting the 2 poison pills...
+
+[Consumer - 1] Received the poison pill. Exiting
+[Consumer - 1] Finished consuming 33 items.
+[Consumer - 2] Received the poison pill. Exiting
+[Consumer - 2] Finished consuming 27 items.
+
+--- Simulation Complete ---
+Total items produced: 60
+Total items consumed: 60
+Expected items: 60
+
+--- Latency Statistics ---
+Average latency: 0.140 ms
+Throughput: 27137.48 items/sec

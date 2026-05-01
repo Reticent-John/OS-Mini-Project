@@ -84,10 +84,10 @@ Removal_Result remove_item() {
     // Removes item from buffer by letting out index be overwritten
     cb.out = (cb.out + 1) % cb.size; // Ensures Circular Implementation
 
-    clock_gettime(CLOCK_MONOTONIC, &cb.deq_time[result.index]); // Recording dequeue timestamp
-
     pthread_mutex_unlock(&mutex); // Unlocks buffer to exit critical section
     sem_post(&empty); // Signals that there is an empty slot
+
+    clock_gettime(CLOCK_MONOTONIC, &cb.deq_time[result.index]); // Recording dequeue timestamp
 
     return result;
 }
