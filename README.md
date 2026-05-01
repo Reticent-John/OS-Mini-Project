@@ -1,22 +1,23 @@
 # Producer-Consumer Multithreaded Application
-In this project we created a multithreaded Producer-Consumer simulation written in C code using the POSIX `pthread` library, mutexes, and semaphores as mentioned in the rubric. It uses a circular bounded buffer to co-ordinate producer and consumer threads safely, and it terminates consumers cleanly using the Poison Pill technique.
+In this project we created a multithreaded Producer-Consumer simulation written in C code using the POSIX `pthread` library, mutexes, and semaphores as mentioned in the rubric. It uses two circular bounded buffers (urgent and normal) to co-ordinate producer and consumer threads safely with priority handling, and it terminates consumers cleanly using the Poison Pill technique.
 
 ## Overiew of the project
-The program creates a modifiable amount of producer and consumer threads. Each producer thread generates a fixed number of random integer items and then it inserts them into a circular buffer. Now, while each consumer removes items from that buffer, it then processes them by printing them onto the console. The assignment requires a circular queue, semaphore blocking for both, full and empty conditions, mutex-based mutual exclusion, and as per the rubrics, a "graceful" :) termination using 1 poison pill per consumer.
+The program creates a modifiable amount of producer and consumer threads. Each producer thread generates a fixed number of random integer items with assigned priorities (urgent or normal) and inserts them into the appropriate circular buffer. Consumers prioritize urgent items, consuming them before normal ones while maintaining FIFO order within each priority level. The assignment requires a circular queue, semaphore blocking for both full and empty conditions, mutex-based mutual exclusion, and graceful termination using 1 poison pill per consumer.
 
 ## Features added
-- Circular bounded buffer implementation. 
+- Circular bounded buffer implementation with separate urgent and normal buffers. 
+- Priority handling: items are assigned urgent (priority 1) or normal (priority 0) priority, with consumers processing urgent items first.
 - Configurable number of producers, consumers, and buffer size via command-line arguments. 
-- Synchronization using semaphores for both, empty and full slots. 
+- Synchronization using semaphores for both empty and full slots on each buffer. 
 - Using mutexes to prevent race conditions. 
 - Graceful termination using the Poison Pill technique. 
-- Input validation cehck for invalid producer, consumer, and buffer values.
+- Input validation check for invalid producer, consumer, and buffer values.
 - Latency and throughput reports to measure the performance. 
 
 ## File Name
 Save the source code as:
 ```bash
-producer_consumer.c
+producer_consumer_main.c
 ```
 
 ## Requirements to run this
@@ -69,6 +70,25 @@ After all producer threads finish and are joined by the main thread, the main th
 
 ### Performance metrics
 The program measures enqueue and dequeue timestamps for items and also reports average latency and overall throughput at the end of execution. here the assignment lists latency and throughput metrics as an optional bonus feature and asks for two runs with different buffer sizes for comparison. 
+
+## Priority Handling
+
+This implementation supports item priorities:
+- **Urgent items (priority 1):** Inserted into a dedicated urgent buffer. Consumers always check and consume urgent items first, maintaining FIFO order among urgent items.
+- **Normal items (priority 0):** Inserted into a separate normal buffer. These are only consumed when no urgent items are present, also in FIFO order.
+- **Producer assignment:** Each item produced has a 25% chance of being urgent (priority 1) and 75% chance of being normal (priority 0).
+- **Poison pills:** Inserted as urgent items to guarantee prompt consumer termination.
+
+This design ensures that urgent work is always prioritized, while normal work is not starved and FIFO is preserved within each priority class.
+
+### Example Output (with priorities)
+```
+[Producer - 1] Produced the Item 42 (priority 1) at index 0
+[Producer - 2] Produced the Item 17 (priority 0) at index 0
+[Consumer - 1] Consumed the item 42 at index 0
+[Consumer - 1] Consumed the item 17 at index 0
+```
+Urgent items are always consumed before normal items, even if produced later.
 
 ## Output
 Run:
@@ -143,4 +163,4 @@ gcc -o producer_consumer producer_consumer.c -pthread
 ```
 
 ## Summary of Deliverable
-This README covers all of da following: compilation, execution, testing, expected behavior, input parameters, and output examples, which are explicitly required in the deliverables section of the project handout. 
+This README covers all of da following: compilation, execution, testing, expected behavior, input parameters, and output examples, which are explicitly required in the deliverables section of the project handout.

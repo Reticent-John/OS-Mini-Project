@@ -18,49 +18,62 @@ typedef struct {
     int out; // Index for the next remove 
 } Circular_Buffer;
 
-Circular_Buffer cb;
-sem_t empty; // Counts Empty Slots
-sem_t full; // Counts Full Slots
+Circular_Buffer cb_urgent, cb_normal;
+sem_t urgent_empty; // Counts Empty Slots for urgent
+sem_t urgent_full; // Counts Full Slots for urgent
+sem_t normal_empty; // Counts Empty Slots for normal
+sem_t normal_full; // Counts Full Slots for normal
 
-pthread_mutex_t mutex; // Protects buffer and ensures mutual exclusion
+pthread_mutex_t mutex; // Protects buffers and ensures mutual exclusion
 
 // Initializes Circular Buffer to the size
-void buffer_init(int size) { 
-    cb.buffer = (int *)malloc(size * sizeof(int)); // Allocates Memory
-    cb.size = size;
-    cb.in = 0;
-    cb.out = 0;
+void buffer_init(int size, Circular_Buffer *cb) { 
+    cb->buffer = (int *)malloc(size * sizeof(int)); // Allocates Memory
+    cb->size = size;
+    cb->in = 0;
+    cb->out = 0;
     
     // Error Check
-    if (cb.buffer == NULL) { 
+    if (cb->buffer == NULL) { 
         printf("Error: Failed to allocate memory!\n");
         exit(1);
     }
 
     // Allocating Memory for the Arrays
-    cb.enq_time = malloc(size * sizeof(struct timespec));
-    cb.deq_time = malloc(size * sizeof(struct timespec));
+    cb->enq_time = malloc(size * sizeof(struct timespec));
+    cb->deq_time = malloc(size * sizeof(struct timespec));
     
     // Error Check
-    if (!cb.enq_time || !cb.deq_time) {
+    if (!cb->enq_time || !cb->deq_time) {
         printf("Error: Failed to allocate timestamp arrays\n");
         exit(1);
     }
 }
 
 // Inserting item
-int insert_item(int item) { 
-    sem_wait(&empty); // Waits until empty slot available in the buffer
+int insert_item(int item, int priority) { 
+    sem_t *e, *f;
+    Circular_Buffer *c;
+    if (priority == 1) {
+        e = &urgent_empty;
+        f = &urgent_full;
+        c = &cb_urgent;
+    } else {
+        e = &normal_empty;
+        f = &normal_full;
+        c = &cb_normal;
+    }
+    sem_wait(e); // Waits until empty slot available in the buffer
     pthread_mutex_lock(&mutex); // Locks buffer to enter critical section    
 
     // Inserting item
-    int index = cb.in;
-    cb.buffer[index] = item;
-    clock_gettime(CLOCK_MONOTONIC, &cb.enq_time[index]); // Recording enqueue timestamp
-    cb.in = (cb.in + 1) % cb.size;
+    int index = c->in;
+    c->buffer[index] = item;
+    clock_gettime(CLOCK_MONOTONIC, &c->enq_time[index]); // Recording enqueue timestamp
+    c->in = (c->in + 1) % c->size;
 
     pthread_mutex_unlock(&mutex); // Unlocks buffer to exit critical section
-    sem_post(&full); // Signals that there is a new item
+    sem_post(f); // Signals that there is a new item
 
     return index;
 }
@@ -73,23 +86,29 @@ typedef struct {
 
 // Removes item from buffer
 Removal_Result remove_item() {
-    sem_wait(&full); // Waits until atleast one item is present in buffer
-    pthread_mutex_lock(&mutex); // Locks the buffer to enter critical section
-
-    // Sets return values
     Removal_Result result;
-    result.item = cb.buffer[cb.out];
-    result.index = cb.out;
-    
-    // Removes item from buffer by letting out index be overwritten
-    cb.out = (cb.out + 1) % cb.size; // Ensures Circular Implementation
-
-    pthread_mutex_unlock(&mutex); // Unlocks buffer to exit critical section
-    sem_post(&empty); // Signals that there is an empty slot
-
-    clock_gettime(CLOCK_MONOTONIC, &cb.deq_time[result.index]); // Recording dequeue timestamp
-
-    return result;
+    // Try urgent first
+    if (sem_trywait(&urgent_full) == 0) {
+        pthread_mutex_lock(&mutex); // Locks the buffer to enter critical section
+        result.item = cb_urgent.buffer[cb_urgent.out];
+        result.index = cb_urgent.out;
+        cb_urgent.out = (cb_urgent.out + 1) % cb_urgent.size; // Ensures Circular Implementation
+        clock_gettime(CLOCK_MONOTONIC, &cb_urgent.deq_time[result.index]); // Recording dequeue timestamp
+        pthread_mutex_unlock(&mutex); // Unlocks buffer to exit critical section
+        sem_post(&urgent_empty); // Signals that there is an empty slot
+        return result;
+    } else {
+        // Normal
+        sem_wait(&normal_full); // Waits until atleast one item is present in buffer
+        pthread_mutex_lock(&mutex); // Locks the buffer to enter critical section
+        result.item = cb_normal.buffer[cb_normal.out];
+        result.index = cb_normal.out;
+        cb_normal.out = (cb_normal.out + 1) % cb_normal.size; // Ensures Circular Implementation
+        clock_gettime(CLOCK_MONOTONIC, &cb_normal.deq_time[result.index]); // Recording dequeue timestamp
+        pthread_mutex_unlock(&mutex); // Unlocks buffer to exit critical section
+        sem_post(&normal_empty); // Signals that there is an empty slot
+        return result;
+    }
 }
 
 int total_prod = 0;
@@ -110,9 +129,10 @@ void *producer(void *arg) {
 
     for (int i =0; i < MAX_ITEMS; i++) { // Produces maximum no. of items per producer
         int item = (rand_r(&seed) % 100) + 1; // Generates random item
+        int priority = (rand_r(&seed) % 4 == 0) ? 1 : 0; // 25% urgent
 
-        int index = insert_item(item);
-        printf("[Producer - %d] Produced the Item %d at index %d\n", id, item, index);
+        int index = insert_item(item, priority);
+        printf("[Producer - %d] Produced the Item %d (priority %d) at index %d\n", id, item, priority, index);
 
         // Updates the stats variable
         pthread_mutex_lock(&stats_mutex);
@@ -208,19 +228,28 @@ int main(int arg_count, char *arg_vec[]) {
     printf("Each producer will generate %d items\n", MAX_ITEMS);
     printf("-----------------------------------------------------\n\n");
     
-    buffer_init(buffer_size); // Initializing Buffer
+    buffer_init(buffer_size, &cb_urgent); // Initializing Urgent Buffer
+    buffer_init(buffer_size, &cb_normal); // Initializing Normal Buffer
 
     // Record Simulation Start Time
     clock_gettime(CLOCK_MONOTONIC, &start_time);
 
     
     // Initializing Semaphores
-    if (sem_init(&empty, 0, buffer_size) != 0) { 
-        printf("Error: Failed to initialize empty semaphore\n");
+    if (sem_init(&urgent_empty, 0, buffer_size) != 0) { 
+        printf("Error: Failed to initialize urgent empty semaphore\n");
         return 1;
     }
-    if (sem_init(&full, 0, 0) != 0) {
-        printf("Error: Failed to initialize full semaphore\n");
+    if (sem_init(&urgent_full, 0, 0) != 0) {
+        printf("Error: Failed to initialize urgent full semaphore\n");
+        return 1;
+    }
+    if (sem_init(&normal_empty, 0, buffer_size) != 0) { 
+        printf("Error: Failed to initialize normal empty semaphore\n");
+        return 1;
+    }
+    if (sem_init(&normal_full, 0, 0) != 0) {
+        printf("Error: Failed to initialize normal full semaphore\n");
         return 1;
     }
     
@@ -261,7 +290,7 @@ int main(int arg_count, char *arg_vec[]) {
     
     // Inserts poison pill for all the consumers
     for (int i = 0; i < num_consumers; i++) {
-        insert_item(POISON_PILL);
+        insert_item(POISON_PILL, 1);
     }
     
     // Waiting for all consumers to die
@@ -285,11 +314,16 @@ int main(int arg_count, char *arg_vec[]) {
     
     free(producers);
     free(consumers);
-    free(cb.buffer);
-    free(cb.enq_time);
-    free(cb.deq_time);
-    sem_destroy(&empty);
-    sem_destroy(&full);
+    free(cb_urgent.buffer);
+    free(cb_urgent.enq_time);
+    free(cb_urgent.deq_time);
+    free(cb_normal.buffer);
+    free(cb_normal.enq_time);
+    free(cb_normal.deq_time);
+    sem_destroy(&urgent_empty);
+    sem_destroy(&urgent_full);
+    sem_destroy(&normal_empty);
+    sem_destroy(&normal_full);
     pthread_mutex_destroy(&mutex);
     pthread_mutex_destroy(&stats_mutex);
     
